@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom Trader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4CAF50;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .date-display {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            margin-top: 20px;
+        }
+
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .history-item .date-time {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .history-item .details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .history-item .price {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .history-item .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 480px) {
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍄 Mushroom Trader</h1>
+            <p>Track Your Sales</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('add')">Add Entry</button>
+            <button class="tab" onclick="switchTab('history')">History</button>
+        </div>
+
+        <!-- Add Entry Tab -->
+        <div id="add-tab" class="tab-content active">
+            <div class="date-display" id="current-date"></div>
+
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="label">Total Revenue</div>
+                    <div class="value" id="total-revenue">LKR 0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Total Packets</div>
+                    <div class="value" id="total-packets">0</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="price">Price per Packet (LKR)</label>
+                <input type="number" id="price" placeholder="e.g., 150.00" step="0.01">
+            </div>
+
+            <div class="input-group">
+                <label for="packets">Number of Packets</label>
+                <input type="number" id="packets" placeholder="e.g., 50">
+            </div>
+
+            <button class="btn" onclick="saveEntry()">SAVE ENTRY</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history-tab" class="tab-content">
+            <div class="history-list" id="history-list"></div>
+            <button class="btn btn-danger" onclick="clearHistory()">CLEAR ALL HISTORY</button>
+        </div>
+    </div>
+
+    <script>
+        // Display current date
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date().toLocaleDateString('en-US', options);
+            document.getElementById('current-date').textContent = today;
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'add') {
+                tabs[0].classList.add('active');
+                document.getElementById('add-tab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('history-tab').classList.add('active');
+                loadHistory();
+            }
+        }
+
+        // Save entry
+        function saveEntry() {
+            const price = parseFloat(document.getElementById('price').value);
+            const packets = parseInt(document.getElementById('packets').value);
+
+            if (!price || !packets || price <= 0 || packets <= 0) {
+                alert('Please enter valid price and number of packets');
+                return;
+            }
+
+            const now = new Date();
+            const date = now.toISOString().split('T')[0];
+            const time = now.toTimeString().split(' ')[0];
+
+            const entry = {
+                date: date,
+                time: time,
+                price: price,
+                packets: packets,
+                total: price * packets
+            };
+
+            // Get existing entries
+            let entries = JSON.parse(localStorage.getItem('mushroomEntries') || '[]');
+            entries.push(entry);
+            localStorage.setItem('mushroomEntries', JSON.stringify(entries));
+
+            // Clear inputs
+            document.getElementById('price').value = '';
+            document.getElementById('packets').value = '';
+
+            // Update totals
+            updateTotals();
+
+            alert('Entry saved successfully!');
+        }
+
+        // Update totals
+        function updateTotals() {
+            const entries = JSON.parse(localStorage.getItem('mushroomEntries') || '[]');
+            
+            let totalRevenue = 0;
+            let totalPackets = 0;
+
+            entries.forEach(entry => {
+                totalRevenue += entry.total;
+                totalPackets += entry.packets;
+            });
+
+            document.getElementById('total-revenue').textContent = `LKR ${totalRevenue.toFixed(2)}`;
+            document.getElementById('total-packets').textContent = totalPackets;
+        }
+
+        // Load history
+        function loadHistory() {
+            const entries = JSON.parse(localStorage.getItem('mushroomEntries') || '[]');
+            const historyList = document.getElementById('history-list');
+
+            if (entries.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <p>No entries yet</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Add your first sale entry to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Reverse to show newest first
+            const reversedEntries = [...entries].reverse();
+            
+            historyList.innerHTML = reversedEntries.map(entry => `
+                <div class="history-item">
+                    <div class="date-time">📅 ${entry.date} ⏰ ${entry.time}</div>
+                    <div class="details">
+                        <div class="price">Price: LKR ${entry.price.toFixed(2)}</div>
+                        <div class="price">Packets: ${entry.packets}</div>
+                    </div>
+                    <div class="total">Total: LKR ${entry.total.toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Clear history
+        function clearHistory() {
+            if (confirm('Are you sure you want to delete all entries? This cannot be undone.')) {
+                localStorage.removeItem('mushroomEntries');
+                updateTotals();
+                loadHistory();
+                alert('History cleared successfully');
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            updateDate();
+            updateTotals();
+        };
+    </script>
+</body>
+</html>
